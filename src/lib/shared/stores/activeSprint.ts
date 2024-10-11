@@ -2,12 +2,13 @@ import { browser } from '$app/environment';
 
 import { writable } from 'svelte/store';
 
-import { getISOWeek, previousMonday } from "date-fns";
+import { getISOWeek, previousMonday, getDay } from "date-fns";
 
 export type SprintDay = {
     complete: boolean,
     date: Date,
-    week: number
+    week: number,
+    label: string
 }
 
 const stateLabel = "activeSprint"
@@ -41,13 +42,16 @@ activeSprint.subscribe((value) => {
 function makeDefaultSprint(length: number = 14, start: Date = new Date(Date.now())): SprintDay[] {
     const startWeek: number = getISOWeek(start);
     const sprintStart: Date = previousMonday(start);
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
     return Array.from(Array(length)).map((day: SprintDay, index) => {
         const datePointer = new Date(sprintStart)
         datePointer.setDate(datePointer.getDate() + index)
         return ({
             complete: false,
             date: datePointer,
-            week: index < 6 ? startWeek : startWeek + 1
+            week: index < 6 ? startWeek : startWeek + 1,
+            label: dayLabels[getDay(datePointer)]
         }) as SprintDay
     })
 }
